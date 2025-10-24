@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Launcher - Nova Style</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #6200ee;
+            --secondary-color: #03dac6;
+            --background-color: #121212;
+            --surface-color: #1e1e1e;
+            --text-color: #ffffff;
+            --animation-speed: 0.4s;
+            --animation-type: ease-out;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navigation-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #7c29ff;
+            transform: translateY(-2px);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .time {
+            font-weight: 500;
+        }
+
+        .status-icons i {
+            margin-left: 5px;
+        }
+
+        .home-screen {
+            flex: 1;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--surface-color);
+            border-radius: 25px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            width: 100%;
+            outline: none;
+        }
+
+        .widgets-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .widget {
+            background-color: var(--surface-color);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform var(--animation-speed) var(--animation-type);
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+        }
+
+        .weather-widget {
+            display: flex;
+            align-items: center;
+        }
+
+        .weather-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        .weather-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 15px;
+            transition: all var(--animation-speed) var(--animation-type);
+            cursor: pointer;
+        }
+
+        .app-icon:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .app-icon img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+
+        .app-icon span {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .dock {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-around;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+        }
+
+        .dock-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 12px;
+            transition: all var(--animation-speed) var(--animation-type);
+        }
+
+        .dock-app:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .dock-app img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+
+        .dock-app span {
+            font-size: 0.7rem;
+        }
+
+        .app-drawer {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            background-color: var(--surface-color);
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            padding: 20px;
+            transition: bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            height: 80%;
+            overflow-y: auto;
+        }
+
+        .app-drawer.open {
+            bottom: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .drawer-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .drawer-search {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-bottom: 20px;
+        }
+
+        .drawer-search i {
+            margin-right: 10px;
+        }
+
+        .drawer-search input {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            width: 100%;
+            outline: none;
+        }
+
+        .drawer-apps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            height: 100%;
+            background-color: var(--surface-color);
+            transition: right 0.4s var(--animation-type);
+            z-index: 200;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .settings-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+
+        .option-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .option-info p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .animation-speed-slider {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .app-open-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .app-open-animation.show {
+            opacity: 1;
+        }
+
+        .app-open-animation .app-icon-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            animation: scaleUp 0.5s ease forwards;
+        }
+
+        @keyframes scaleUp {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .wallpaper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+        }
+
+        .download-section {
+            padding: 30px 20px;
+            text-align: center;
+            background-color: var(--surface-color);
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-section h2 {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .download-section p {
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .download-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .download-button:hover {
+            background-color: #7c29ff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(98, 0, 238, 0.4);
+        }
+
+        .back-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--surface-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation-bar">
+        <div class="nav-title">Smooth Launcher</div>
+        <div class="nav-buttons">
+            <button class="nav-button" id="home-btn">Home</button>
+            <button class="nav-button" id="features-btn">Features</button>
+            <button class="nav-button" id="download-btn">Download</button>
+        </div>
+    </div>
+
+    <div class="wallpaper"></div>
+    
+    <div class="status-bar">
+        <div class="time">14:30</div>
+        <div class="status-icons">
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <div class="home-screen" id="home-screen">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search apps, contacts, web...">
+        </div>
+
+        <div class="widgets-container">
+            <div class="widget weather-widget">
+                <div class="weather-icon">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="weather-info">
+                    <h3>Sunny</h3>
+                    <p>28°C • Jakarta</p>
+                </div>
+            </div>
+            <div class="widget">
+                <h3>Calendar</h3>
+                <p>No events today</p>
+            </div>
+        </div>
+
+        <div class="apps-grid">
+            <div class="app-icon" data-app="phone">
+                <img src="https://via.placeholder.com/50/4CAF50/FFFFFF?text=P" alt="Phone">
+                <span>Phone</span>
+            </div>
+            <div class="app-icon" data-app="messages">
+                <img src="https://via.placeholder.com/50/2196F3/FFFFFF?text=M" alt="Messages">
+                <span>Messages</span>
+            </div>
+            <div class="app-icon" data-app="chrome">
+                <img src="https://via.placeholder.com/50/FF9800/FFFFFF?text=C" alt="Chrome">
+                <span>Chrome</span>
+            </div>
+            <div class="app-icon" data-app="camera">
+                <img src="https://via.placeholder.com/50/9C27B0/FFFFFF?text=Cam" alt="Camera">
+                <span>Camera</span>
+            </div>
+            <div class="app-icon" data-app="gallery">
+                <img src="https://via.placeholder.com/50/673AB7/FFFFFF?text=G" alt="Gallery">
+                <span>Gallery</span>
+            </div>
+            <div class="app-icon" data-app="maps">
+                <img src="https://via.placeholder.com/50/4CAF50/FFFFFF?text=Map" alt="Maps">
+                <span>Maps</span>
+            </div>
+            <div class="app-icon" data-app="music">
+                <img src="https://via.placeholder.com/50/F44336/FFFFFF?text=Mu" alt="Music">
+                <span>Music</span>
+            </div>
+            <div class="app-icon" data-app="clock">
+                <img src="https://via.placeholder.com/50/607D8B/FFFFFF?text=Cl" alt="Clock">
+                <span>Clock</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dock">
+        <div class="dock-app" id="open-drawer">
+            <img src="https://via.placeholder.com/40/FFFFFF/6200EE?text=AP" alt="Apps">
+            <span>Apps</span>
+        </div>
+        <div class="dock-app">
+            <img src="https://via.placeholder.com/40/FFC107/000000?text=Ph" alt="Phone">
+            <span>Phone</span>
+        </div>
+        <div class="dock-app">
+            <img src="https://via.placeholder.com/40/4CAF50/FFFFFF?text=Ms" alt="Messages">
+            <span>Messages</span>
+        </div>
+        <div class="dock-app">
+            <img src="https://via.placeholder.com/40/2196F3/FFFFFF?text=Ch" alt="Chrome">
+            <span>Chrome</span>
+        </div>
+        <div class="dock-app" id="open-settings">
+            <img src="https://via.placeholder.com/40/9E9E9E/FFFFFF?text=Se" alt="Settings">
+            <span>Settings</span>
+        </div>
+    </div>
+
+    <div class="app-drawer" id="app-drawer">
+        <div class="drawer-header">
+            <h2>All Apps</h2>
+            <i class="fas fa-times" id="close-drawer"></i>
+        </div>
+        <div class="drawer-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search apps">
+        </div>
+        <div class="drawer-apps">
+            <!-- More app icons will be dynamically added -->
+        </div>
+    </div>
+
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-header">
+            <h2>Launcher Settings</h2>
+            <i class="fas fa-times" id="close-settings"></i>
+        </div>
+        
+        <div class="settings-option">
+            <div class="option-info">
+                <h3>Smooth Animations</h3>
+                <p>Enable smooth app opening animations</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="smooth-animations" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="settings-option">
+            <div class="option-info">
+                <h3>Animation Speed</h3>
+                <p>Adjust how fast animations play</p>
+                <input type="range" min="0.1" max="1" step="0.1" value="0.4" class="animation-speed-slider" id="animation-speed">
+            </div>
+        </div>
+        
+        <div class="settings-option">
+            <div class="option-info">
+                <h3>App Opening Effect</h3>
+                <p>Choose animation when opening apps</p>
+            </div>
+            <select id="animation-type">
+                <option value="ease-out">Scale Up</option>
+                <option value="ease-in-out">Fade In</option>
+                <option value="cubic-bezier(0.34, 1.56, 0.64, 1)">Bounce</option>
+            </select>
+        </div>
+        
+        <div class="settings-option">
+            <div class="option-info">
+                <h3>Wallpaper</h3>
+                <p>Change home screen background</p>
+            </div>
+            <button id="change-wallpaper">Change</button>
+        </div>
+        
+        <div class="settings-option">
+            <div class="option-info">
+                <h3>Icon Pack</h3>
+                <p>Apply custom icon pack</p>
+            </div>
+            <button id="change-icons">Apply</button>
+        </div>
+    </div>
+
+    <div class="app-open-animation" id="app-animation">
+        <img src="" alt="" class="app-icon-large">
+    </div>
+
+    <div class="download-section" id="download-section" style="display: none;">
+        <h2>Download Smooth Launcher</h2>
+        <p>Get the full APK version of Smooth Launcher with all features enabled</p>
+        <a href="#" class="download-button" id="download-link">
+            <i class="fas fa-download"></i> Download APK
+        </a>
+        <p style="margin-top: 15px; font-size: 0.8rem;">Version 1.0 | 15 MB | Android 8.0+</p>
+    </div>
+
+    <div class="back-button" id="back-button" style="display: none;">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+
+    <script>
+        // DOM Elements
+        const appDrawer = document.getElementById('app-drawer');
+        const settingsPanel = document.getElementById('settings-panel');
+        const openDrawerBtn = document.getElementById('open-drawer');
+        const closeDrawerBtn = document.getElementById('close-drawer');
+        const openSettingsBtn = document.getElementById('open-settings');
+        const closeSettingsBtn = document.getElementById('close-settings');
+        const appIcons = document.querySelectorAll('.app-icon');
+        const appAnimation = document.getElementById('app-animation');
+        const smoothAnimationsToggle = document.getElementById('smooth-animations');
+        const animationSpeedSlider = document.getElementById('animation-speed');
+        const animationTypeSelect = document.getElementById('animation-type');
+        const drawerAppsContainer = document.querySelector('.drawer-apps');
+        const changeWallpaperBtn = document.getElementById('change-wallpaper');
+        const changeIconsBtn = document.getElementById('change-icons');
+        const homeScreen = document.getElementById('home-screen');
+        const downloadSection = document.getElementById('download-section');
+        const homeBtn = document.getElementById('home-btn');
+        const featuresBtn = document.getElementById('features-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const backButton = document.getElementById('back-button');
+        const downloadLink = document.getElementById('download-link');
+
+        // Navigation functions
+        function showHome() {
+            homeScreen.style.display = 'block';
+            downloadSection.style.display = 'none';
+            backButton.style.display = 'none';
+        }
+
+        function showDownload() {
+            homeScreen.style.display = 'none';
+            downloadSection.style.display = 'block';
+            backButton.style.display = 'flex';
+        }
+
+        // Navigation event listeners
+        homeBtn.addEventListener('click', showHome);
+        featuresBtn.addEventListener('click', showHome);
+        downloadBtn.addEventListener('click', showDownload);
+        backButton.addEventListener('click', showHome);
+
+        // Open App Drawer
+        openDrawerBtn.addEventListener('click', () => {
+            appDrawer.classList.add('open');
+        });
+
+        // Close App Drawer
+        closeDrawerBtn.addEventListener('click', () => {
+            appDrawer.classList.remove('open');
+        });
+
+        // Open Settings Panel
+        openSettingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.add('open');
+        });
+
+        // Close Settings Panel
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.remove('open');
+        });
+
+        // App Opening Animation
+        appIcons.forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                if (smoothAnimationsToggle.checked) {
+                    e.preventDefault();
+                    
+                    const appName = icon.getAttribute('data-app');
+                    const appImg = icon.querySelector('img').src;
+                    
+                    // Show animation
+                    appAnimation.querySelector('.app-icon-large').src = appImg;
+                    appAnimation.classList.add('show');
+                    
+                    // Hide animation after delay
+                    setTimeout(() => {
+                        appAnimation.classList.remove('show');
+                        alert(`Opening ${appName} app...`);
+                    }, 800);
+                } else {
+                    const appName = icon.getAttribute('data-app');
+                    alert(`Opening ${appName} app...`);
+                }
+            });
+        });
+
+        // Update Animation Speed
+        animationSpeedSlider.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--animation-speed', `${e.target.value}s`);
+        });
+
+        // Update Animation Type
+        animationTypeSelect.addEventListener('change', (e) => {
+            document.documentElement.style.setProperty('--animation-type', e.target.value);
+        });
+
+        // Change Wallpaper
+        changeWallpaperBtn.addEventListener('click', () => {
+            const wallpapers = [
+                'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                'linear-gradient(135deg, #0f3460 0%, #533483 100%)',
+                'linear-gradient(135deg, #1d2b64 0%, #f8cdda 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            ];
+            
+            const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)];
+            document.querySelector('.wallpaper').style.background = randomWallpaper;
+        });
+
+        // Change Icons
+        changeIconsBtn.addEventListener('click', () => {
+            const icons = document.querySelectorAll('.app-icon img, .dock-app img');
+            icons.forEach(icon => {
+                const currentColor = icon.src.split('/')[5];
+                const newColor = getRandomColor();
+                icon.src = icon.src.replace(currentColor, newColor);
+            });
+            alert('Icon pack applied!');
+        });
+
+        // Helper function to get random color
+        function getRandomColor() {
+            const colors = ['4CAF50', '2196F3', 'FF9800', '9C27B0', 'F44336', '607D8B', '795548'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Populate app drawer with more apps
+        function populateAppDrawer() {
+            const apps = [
+                { name: 'Calculator', color: 'FFC107', text: 'Cal' },
+                { name: 'Calendar', color: 'E91E63', text: 'Cal' },
+                { name: 'Contacts', color: '3F51B5', text: 'Con' },
+                { name: 'Files', color: '009688', text: 'Fil' },
+                { name: 'Gmail', color: 'D32F2F', text: 'Gm' },
+                { name: 'Photos', color: '7B1FA2', text: 'Ph' },
+                { name: 'Play Store', color: '388E3C', text: 'PS' },
+                { name: 'YouTube', color: 'D32F2F', text: 'YT' },
+                { name: 'Maps', color: '4CAF50', text: 'Map' },
+                { name: 'Drive', color: '1976D2', text: 'Dr' },
+                { name: 'Keep', color: 'FFA000', text: 'Kp' },
+                { name: 'Translate', color: '0288D1', text: 'Tr' }
+            ];
+            
+            apps.forEach(app => {
+                const appElement = document.createElement('div');
+                appElement.className = 'app-icon';
+                appElement.setAttribute('data-app', app.name.toLowerCase());
+                appElement.innerHTML = `
+                    <img src="https://via.placeholder.com/50/${app.color}/FFFFFF?text=${app.text}" alt="${app.name}">
+                    <span>${app.name}</span>
+                `;
+                
+                // Add click event
+                appElement.addEventListener('click', (e) => {
+                    if (smoothAnimationsToggle.checked) {
+                        e.preventDefault();
+                        
+                        const appImg = appElement.querySelector('img').src;
+                        
+                        // Show animation
+                        appAnimation.querySelector('.app-icon-large').src = appImg;
+                        appAnimation.classList.add('show');
+                        
+                        // Hide animation after delay
+                        setTimeout(() => {
+                            appAnimation.classList.remove('show');
+                            alert(`Opening ${app.name} app...`);
+                        }, 800);
+                    } else {
+                        alert(`Opening ${app.name} app...`);
+                    }
+                });
+                
+                drawerAppsContainer.appendChild(appElement);
+            });
+        }
+
+        // Download link handler
+        downloadLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Download will start shortly. This is a demo - in a real app, the APK would download now.');
+            // In a real implementation, this would trigger the actual APK download
+            // window.location.href = 'path/to/smooth-launcher.apk';
+        });
+
+        // Initialize
+        populateAppDrawer();
+        
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.querySelector('.time').textContent = timeString;
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
